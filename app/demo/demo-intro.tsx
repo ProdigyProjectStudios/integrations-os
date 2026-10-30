@@ -1,11 +1,12 @@
 "use client";
 
-import { Activity, ArrowDownRight, ArrowUpRight, Check, CircleDot, GitBranch, ShieldCheck, Sparkles, Workflow } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Check, CircleDot, GitBranch, Github, LayoutDashboard, ShieldCheck, Sparkles, Workflow } from "lucide-react";
 import { ShaderBackground } from "../../components/ui/calm-violet-silk-shader-hero-background";
 
 type Props = {
   engineStatus: "online" | "connecting" | "offline";
   onInspect: () => void;
+  onCommandCenter: () => void;
 };
 
 const stages = [
@@ -14,7 +15,7 @@ const stages = [
   { code: "03", name: "Trace", detail: "Persist the outcome", icon: Activity },
 ];
 
-export default function DemoIntro({ engineStatus, onInspect }: Props) {
+export default function DemoIntro({ engineStatus, onInspect, onCommandCenter }: Props) {
   const connected = engineStatus === "online";
 
   return (
@@ -35,10 +36,21 @@ export default function DemoIntro({ engineStatus, onInspect }: Props) {
             <a className="demo-intro-primary" href="#workflow-studio">
               Explore the canvas <ArrowDownRight size={17} />
             </a>
-            <button type="button" className="demo-intro-secondary" onClick={onInspect}>
-              Inspect executions <ArrowUpRight size={16} />
+            <button type="button" className="demo-intro-secondary" onClick={onCommandCenter}>
+              <LayoutDashboard size={16} /> Command Center
             </button>
+            <a
+              className="demo-intro-repo"
+              href="https://github.com/ProdigyProjectStudios/integrations-os"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Github size={16} /> GitHub repository <ArrowUpRight size={14} />
+            </a>
           </div>
+          <button type="button" className="demo-intro-traces" onClick={onInspect}>
+            Or inspect a saved execution <ArrowUpRight size={13} />
+          </button>
         </div>
         <div className="demo-intro-diagram" aria-label="Illustrative path through the workflow engine">
           <div className="demo-intro-diagram-bar">

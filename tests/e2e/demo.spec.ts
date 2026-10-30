@@ -11,6 +11,12 @@ test('visitor builds a graph, runs the sandbox engine and inspects its persisted
   await expect(page.getByRole('heading', { name: /Build the flow.*See the proof/i })).toBeVisible();
   await expect(page.locator('.demo-intro-shader')).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Explore the canvas' })).toHaveAttribute('href', '#workflow-studio');
+  await expect(page.locator('.sidebar .integration-brand-symbol')).toHaveCount(1);
+  await expect(page.getByRole('link', { name: 'GitHub repository' })).toHaveAttribute('href', 'https://github.com/ProdigyProjectStudios/integrations-os');
+  await page.getByRole('button', { name: 'Command Center' }).click();
+  await expect(page.locator('.page-heading h1')).toContainText('Command Center');
+  await page.locator('.sidebar nav button[data-demo-view="studio"]').click();
+  await expect(page.getByLabel('Select workflow')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Workspace settings', exact: true })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Integration Hub', exact: true })).toHaveCount(0);
   await page.getByTitle('Workflow settings', { exact: true }).click();

@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 
 import WorkflowStudio from "./workflow-studio";
+import BrandMark from "../components/brand-mark";
 import DemoIntro from "./demo/demo-intro";
 import SpotlightCard from "../components/reactbits/SpotlightCard";
 import { useInterfaceMotion } from "./motion";
@@ -917,37 +918,46 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
         className={`sidebar ${sidebar ? "open" : ""}`}
       >
         <a className="brand" href={demo ? "/portfolio" : "/?view=overview"}>
-          <span className="brand-mark">
-            <Layers3 size={22} />
-          </span>
+          <span className="brand-mark"><BrandMark size={45} className="integration-brand-symbol" /></span>
           Integration<span>OS</span>
         </a>
-        {demo && <div className="demo-sidebar-tag"><i /> INTERACTIVE ENGINE SANDBOX</div>}
+        {demo && <div className="demo-sidebar-tag"><i /> THE WORKFLOW LAB / 01</div>}
         <button
           className="workspace-switch"
           disabled={demo}
           onClick={() => setModal("workspace")}
         >
-          <span className="workspace-avatar">A</span>
+          <span className="workspace-avatar">{demo ? <Workflow size={17} /> : "A"}</span>
           <span>
-            {demo ? "Your visitor sandbox" : "Acme workspace"}<small>{demo ? "Private to this browser · 24 hours" : "Enterprise sandbox"}</small>
+            {demo ? "Your private sandbox" : "Acme workspace"}<small>{demo ? "Isolated engine · 24-hour access" : "Enterprise sandbox"}</small>
           </span>
           <ChevronDown size={13} />
         </button>
-        <div className="nav-label">WORKSPACE</div>
-        <nav>
-          {availableViews.map((v) => (
+        <div className="nav-label">{demo ? "EXPLORE THE PLATFORM" : "WORKSPACE"}</div>
+        <nav aria-label={demo ? "Demo navigation" : "Workspace navigation"}>
+          {availableViews.map((v, idx) => (
             <button
               key={v.id}
+              data-demo-view={demo ? v.id : undefined}
               className={view === v.id ? "active" : ""}
               onClick={() => go(v.id)}
             >
               <v.icon size={17} />
               <span>{v.name}</span>
+              {demo && <small className="demo-nav-index" aria-hidden="true">{String(idx + 1).padStart(2, "0")}</small>}
               {v.id === "executions" && attention > 0 && <b>{attention}</b>}
             </button>
           ))}
         </nav>
+        {demo && (
+          <div className="demo-sidebar-resource">
+            <div className="demo-sidebar-resource-heading"><BrandMark size={30} /><span>ENGINEERING CORE<small>Execution, not simulation.</small></span></div>
+            <p>Workflows run on a durable engine. Provider calls are simulated in this public sandbox.</p>
+            <a href="https://github.com/ProdigyProjectStudios/integrations-os" target="_blank" rel="noopener noreferrer">
+              Review the source <ArrowUpRight size={13} />
+            </a>
+          </div>
+        )}
         <div className="sidebar-bottom">
           <div className="engine-status">
             <span className="pulse-dot" />
@@ -972,7 +982,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
           </button>}
           <div className="user">
             <span className="user-avatar">
-              {data?.workspace.user.slice(0, 1).toUpperCase() || "A"}
+              {demo ? "V" : data?.workspace.user.slice(0, 1).toUpperCase() || "A"}
             </span>
             <div>
               {demo ? "Visitor workspace" : data?.workspace.user.split("@")[0] || "Workspace owner"}
@@ -1039,6 +1049,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
             <DemoIntro
               engineStatus={error ? "offline" : data ? "online" : "connecting"}
               onInspect={() => go("executions")}
+              onCommandCenter={() => go("overview")}
             />
           ) : (
           <div className="page-heading">

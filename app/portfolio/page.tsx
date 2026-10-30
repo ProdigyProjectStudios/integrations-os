@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight,
-  CheckCircle2, CircleDot, GitBranch, Layers, ShieldCheck, Workflow
+  CheckCircle2, CircleDot, GitBranch, Layers, ShieldCheck
 } from "lucide-react";
 import { ShaderBackground } from "../../components/ui/calm-violet-silk-shader-hero-background";
+import BrandMark from "../../components/brand-mark";
 import recorded from "./recorded-runs.json";
 import "./portfolio.css";
 
@@ -86,7 +87,7 @@ export default function Portfolio() {
       <header className="portfolio-header">
         <div className="portfolio-container portfolio-header-inner">
           <a href="/portfolio" className="portfolio-brand" aria-label="IntegrationOS portfolio">
-            <span className="portfolio-brand-icon"><Workflow size={22} strokeWidth={2} /></span>
+            <span className="portfolio-brand-icon"><BrandMark size={38} /></span>
             <span>Integration<span>OS</span></span>
           </a>
           <nav className="portfolio-header-nav" aria-label="Portfolio navigation">
