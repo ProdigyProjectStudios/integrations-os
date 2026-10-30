@@ -10,6 +10,14 @@ export const workspaces = sqliteTable("workspaces", {
   name: text().notNull(),
   created_at: integer().notNull(),
 });
+export const demoSessions = sqliteTable("demo_sessions", {
+  id: text().primaryKey(),
+  user_id: text().notNull(),
+  workspace_id: text().notNull().unique(),
+  created_at: integer().notNull(),
+  expires_at: integer().notNull(),
+  runs: integer().notNull().default(0),
+}, (t) => [index("demo_expiry").on(t.expires_at)]);
 export const members = sqliteTable(
   "members",
   {

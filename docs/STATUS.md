@@ -18,9 +18,10 @@
 
 ## Local verification
 
-- 45 backend tests pass against SQLite and generated migrations. Coverage includes a hard process exit after a delivery receipt, checkpoint recovery, refresh races, tenant isolation, quota races, sync conflicts, restore integrity, a real local HTTP collector and portfolio authorization.
+- 48 backend tests pass against SQLite and generated migrations. Coverage includes a hard process exit after a delivery receipt, checkpoint recovery, refresh races, tenant isolation, quota races, sync conflicts, restore integrity, a real local HTTP collector, portfolio authorization and isolated public sandbox execution/cleanup.
 - 12 desktop/mobile Playwright tests pass against the built Worker. Coverage includes graph editing/execution/traces, approvals, publication conflicts, integrations, membership operations, verified backups, retention preview, responsive layout and CSP violations.
 - Two additional desktop/mobile portfolio checks pass on the final build, including recorded trace selection and absence of administrative controls. The working tree and all 218 pre-release Git history blobs passed the credential-pattern/secret-file scan before publication; runtime secrets remain outside Git.
+- The interactive public sandbox adds two passing desktop/mobile checks (16 browser checks total): edit and wire a graph, publish, execute, inspect real node output, reload, and reject cross-visitor trace access. Anonymous checks explicitly remove the simulated owner headers used by the private-app test harness.
 - Type checking and the production Worker/client build pass.
 - The final dependency audit reports **0 vulnerabilities** at this release's audit time.
 - A bounded local load check drains 100 executions across 10 tenants with two concurrent drain callers. This is not a distributed capacity or production-SLO certification.
@@ -29,7 +30,7 @@
 
 The hosted Phase 1 deployment was verified on 30 October 2026. The enabled managed recovery job `Automation_1b1a1aaf7a8c8191a52236a1ace947cf` runs hourly at :47 (Europe/London); the platform permits at most one scheduled run per hour. Its initial unattended run recovered expired-lease canary `14e013ab-1961-467c-b3d2-f4ba3f071d3a`, trace `0e7cb507677049a29fe0ca6ef74062f9`, to success on attempt 2 at 03:45:54 UTC without a manual recovery request. Maintenance `cbdf4d70-01e3-4586-948c-3c644f3733fe` then completed at 03:46:04 UTC with no due execution work. Encrypted R2 backup `4e22bf32-60fb-47de-a9c1-0124df6a913e` passed readback/checksum verification and excluded credentials.
 
-The `/portfolio` route contains only explicitly allowlisted, recorded sandbox runs produced by `scripts/generate-portfolio.mjs`. It offers read-only trace selection, no administration or execution mutations. With the deployed `PUBLIC_PORTFOLIO_ONLY=true`, anonymous/non-owner visitors are redirected there and workspace APIs reject them before workspace provisioning. Owner access requires the trusted gateway identity and the pinned email digest. Site sharing itself remains owner-private; public sharing is a separate owner setting. Do not disable this guard on a publicly shared portfolio instance.
+The Site is publicly shared. `/portfolio` contains explicitly allowlisted recorded sandbox runs and links to the interactive `/demo` Studio. Visitors get individual cookie-bound sandbox tenants and execute their own published graphs with persisted engine traces. The visitor API rejects live mode and all administration; normal workspace APIs retain the pinned-owner guard. See [PUBLIC-DEMO.md](PUBLIC-DEMO.md) for quotas, lifecycle and verification. Do not disable `PUBLIC_PORTFOLIO_ONLY` on this publicly shared portfolio instance.
 
 ## Owner-dependent acceptance
 

@@ -14,7 +14,7 @@ export function executionTelemetry(db, env, e) {
   const processor = {
     onStart() {},
     onEnd(span) {
-      if (!env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT) return;
+      if (!env.OTEL_EXPORTER_OTLP_TRACES_ENDPOINT || e.source === 'public-demo') return;
       const context = span.spanContext(),
         parent = span.parentSpanContext?.spanId;
       const ms = (t) => t[0] * 1000 + t[1] / 1e6;

@@ -52,7 +52,7 @@ import WorkflowStudio from "./workflow-studio";
 import SpotlightCard from "../components/reactbits/SpotlightCard";
 import { useInterfaceMotion } from "./motion";
 import WorkspaceOperations from "./workspace-operations";
-import { workspaceHeaders } from "./workspace-api";
+import { workspaceHeaders, apiUrl } from "./workspace-api";
 import type { Graph } from "./workflow-studio";
 
 type Run = {
@@ -187,7 +187,7 @@ async function api<T = Record<string, string>>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const response = await fetch("/api/" + path, {
+  const response = await fetch(apiUrl(path), {
     ...options,
     headers: {
       "Content-Type": "application/json",
@@ -688,10 +688,11 @@ function RunTable({
   );
 }
 
-export default function Dashboard() {
+export default function Dashboard({ demo = false }: { demo?: boolean }) {
+  const availableViews = demo ? views.filter(v => ["overview", "studio", "executions"].includes(v.id)) : views;
   const motionRef = useRef<HTMLDivElement>(null);
   const [runWorkflowId, setRunWorkflowId] = useState("");
-  const [view, setView] = useState<View>("overview");
+  const [view, setView] = useState<View>(demo ? "studio" : "overview");
   const [data, setData] = useState<Snapshot | null>(null);
   useInterfaceMotion(motionRef, view, Boolean(data));
   const [trace, setTrace] = useState<Trace | null>(null);
@@ -717,6 +718,7 @@ export default function Dashboard() {
     setTimeout(() => setToast(""), 4500);
   };
   const go = (next: View) => {
+    if (demo && !["overview", "studio", "executions"].includes(next)) next = "studio";
     if (
       next !== view &&
       !window.dispatchEvent(
@@ -751,8 +753,8 @@ export default function Dashboard() {
   }, [hours]);
   useEffect(() => {
     const v = new URLSearchParams(window.location.search).get("view") as View;
-    if (views.some((x) => x.id === v)) setView(v);
-  }, []);
+    if (availableViews.some((x) => x.id === v)) setView(v);
+  }, [demo]);
   useEffect(() => {
     void refresh();
     if (!live) return;
@@ -913,7 +915,7 @@ export default function Dashboard() {
         inert={Boolean(modal)}
         className={`sidebar ${sidebar ? "open" : ""}`}
       >
-        <a className="brand" href="/?view=overview">
+        <a className="brand" href={demo ? "/portfolio" : "/?view=overview"}>
           <span className="brand-mark">
             <Layers3 size={22} />
           </span>
@@ -921,17 +923,18 @@ export default function Dashboard() {
         </a>
         <button
           className="workspace-switch"
+          disabled={demo}
           onClick={() => setModal("workspace")}
         >
           <span className="workspace-avatar">A</span>
           <span>
-            Acme workspace<small>Enterprise sandbox</small>
+            {demo ? "Your visitor sandbox" : "Acme workspace"}<small>{demo ? "Private to this browser · 24 hours" : "Enterprise sandbox"}</small>
           </span>
           <ChevronDown size={13} />
         </button>
         <div className="nav-label">WORKSPACE</div>
         <nav>
-          {views.map((v) => (
+          {availableViews.map((v) => (
             <button
               key={v.id}
               className={view === v.id ? "active" : ""}
@@ -961,25 +964,25 @@ export default function Dashboard() {
             Architecture & guide
             <ArrowUpRight size={13} />
           </button>
-          <button onClick={() => setModal("workspace")}>
+          {!demo && <button onClick={() => setModal("workspace")}>
             <Settings2 size={17} />
             Workspace settings
-          </button>
+          </button>}
           <div className="user">
             <span className="user-avatar">
               {data?.workspace.user.slice(0, 1).toUpperCase() || "A"}
             </span>
             <div>
               {data?.workspace.user.split("@")[0] || "Workspace owner"}
-              <small>{data?.workspace.role || "Admin"}</small>
+              <small>{data?.workspace.role || (demo ? "Sandbox visitor" : "Admin")}</small>
             </div>
-            <a
+            {!demo && <a
               title="Sign out"
               href="/signout-with-chatgpt?return_to=/"
               target="_top"
             >
               <Unplug size={15} />
-            </a>
+            </a>}
           </div>
         </div>
       </aside>
@@ -1079,13 +1082,12 @@ export default function Dashboard() {
                 <div className="sandbox-banner">
                   <div>
                     <Box size={15} />
-                    <strong>Sandbox by default</strong>
+                    <strong>{demo ? "Your isolated sandbox" : "Sandbox by default"}</strong>
                     <span>
-                      Real engine. Persisted traces. Live actions require
-                      connected accounts.
+                      {demo ? "Build, publish and run. Real traces; simulated integrations. 30 runs · expires after 24 hours. Use sample data." : "Real engine. Persisted traces. Live actions require connected accounts."}
                     </span>
                   </div>
-                  <button
+                  {demo ? <a href="/portfolio">Back to portfolio <ArrowUpRight size={13} /></a> : <button
                     disabled={busy}
                     onClick={() =>
                       void action(async () => {
@@ -1100,7 +1102,7 @@ export default function Dashboard() {
                       ? "Load reference events"
                       : "Initialize reference events"}
                     <ArrowRight size={13} />
-                  </button>
+                  </button>}
                 </div>
                 {view === "overview" && (
                   <>
@@ -1246,13 +1248,13 @@ export default function Dashboard() {
                     </div>
                     <div className="section-heading">
                       <h2>
-                        Connected systems <span>03</span>
+                        {demo ? "Sandbox adapters" : "Connected systems"} <span>03</span>
                       </h2>
                       <button
                         className="text-btn"
                         onClick={() => go("integrations")}
                       >
-                        Manage integrations
+                        {demo ? "Build a workflow" : "Manage integrations"}
                         <ArrowUpRight size={13} />
                       </button>
                     </div>
@@ -1637,6 +1639,7 @@ export default function Dashboard() {
                 )}
                 {view === "studio" && (
                   <WorkflowStudio
+                    demo={demo}
                     flows={data.workflows}
                     onPublished={refresh}
                     onInspect={(id) => {
@@ -1648,7 +1651,7 @@ export default function Dashboard() {
                     }}
                   />
                 )}
-                {view === "integrations" && (
+                {!demo && view === "integrations" && (
                   <>
                     <div className="section-heading">
                       <h2>Your integration stack</h2>
@@ -2050,7 +2053,7 @@ export default function Dashboard() {
                   Remove connection
                 </button>
               </>
-            ) : modal === "workspace" ? (
+            ) : modal === "workspace" && !demo ? (
               <>
                 <span className="eyebrow">WORKSPACE</span>
                 <h2 id="modal-title">Workspace operations</h2>

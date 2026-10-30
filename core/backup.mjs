@@ -136,7 +136,7 @@ export async function scheduledBackup(db, env) {
   if (!env.BACKUPS || !env.BACKUP_ENCRYPTION_KEY) return { configured: false };
   const ws = await one(
     db,
-    "SELECT w.id FROM workspaces w LEFT JOIN backups b ON w.id=b.workspace_id GROUP BY w.id HAVING COALESCE(MAX(b.created_at),0)<? ORDER BY COALESCE(MAX(b.created_at),0) LIMIT 1",
+    "SELECT w.id FROM workspaces w LEFT JOIN backups b ON w.id=b.workspace_id WHERE NOT EXISTS (SELECT 1 FROM demo_sessions d WHERE d.workspace_id=w.id) GROUP BY w.id HAVING COALESCE(MAX(b.created_at),0)<? ORDER BY COALESCE(MAX(b.created_at),0) LIMIT 1",
     Date.now() - 86400000,
   );
   if (!ws) return { configured: true, due: false };

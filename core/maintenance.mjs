@@ -5,6 +5,7 @@ import { acquireLock, rateLimit } from "./limits.mjs";
 import { runSync } from "./sync.mjs";
 import { exportTelemetry } from "./telemetry-export.mjs";
 import { scheduledBackup } from "./backup.mjs";
+import { cleanupDemoSessions } from "./demo.mjs";
 
 export async function authorizeWorker(request, env) {
   const bearer = request.headers.get("authorization") || "";
@@ -73,6 +74,7 @@ export async function recover(db, env, options = {}) {
     "{}",
   );
   try {
+    detail.demoCleanup = await cleanupDemoSessions(db);
     detail.before = (await maintenanceStatus(db, env)).queue;
     // Keep each HTTP/MCP call bounded: execution recovery has priority. Other
     // maintenance runs in a subsequent wake after the due execution queue drains.

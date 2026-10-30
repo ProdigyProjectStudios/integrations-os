@@ -34,6 +34,7 @@ import {
 import { rateLimit } from "./limits.mjs";
 import { operations, joinWorkspace, webhookSecret } from "./operations.mjs";
 import { workspaceAccess } from "./portfolio.mjs";
+import { handleDemo } from "./demo.mjs";
 
 const reply = (data, status = 200) =>
   Response.json(data, {
@@ -77,12 +78,14 @@ async function jsonBody(raw) {
     throw new AppError("Invalid JSON.");
   }
 }
-export async function handleApi(request, env, user, background) {
+export async function handleApi(request, env, user, background, demoSession = null) {
   const url = new URL(request.url);
   const parts = url.pathname.replace(/^\/api\/?/, "").split("/");
   const route = parts[0];
   const db = env.DB;
   try {
+    if (route === "demo" && !demoSession)
+      return await handleDemo(request, env, background, handleApi);
     // Drain every bounded body, including bodyless-action endpoints. Leaving a
     // POST stream unread can terminate a reused connection in local workerd.
     const rawBody = request.body ? await bodyText(request) : null;
@@ -143,7 +146,7 @@ export async function handleApi(request, env, user, background) {
     }
     if (!user?.userId)
       throw new AppError("Sign in to open your workspace.", 401);
-    if (!(await workspaceAccess(user, env)))
+    if (!demoSession && !(await workspaceAccess(user, env)))
       throw new AppError("This portfolio is read-only. Workspace access is restricted to its owner.", 403);
     await rateLimit(
       db,
@@ -159,7 +162,7 @@ export async function handleApi(request, env, user, background) {
         await joinWorkspace(db, user, (await jsonBody(rawBody)).code),
       );
     }
-    const personal = await workspaceFor(db, user.userId);
+    const personal = demoSession ? demoSession.workspace_id : await workspaceFor(db, user.userId);
     const workspace = request.headers.get("x-workspace-id") || personal;
     const member = await one(
       db,
@@ -225,7 +228,7 @@ export async function handleApi(request, env, user, background) {
           name: (
             await one(db, "SELECT name FROM workspaces WHERE id=?", workspace)
           ).name,
-          role: member.role,
+          role: demoSession ? "sandbox visitor" : member.role,
           user: user.displayName || user.email || "Workspace owner",
         },
         runs: runs.map((e) => ({ ...e, payload: JSON.parse(e.payload) })),
@@ -245,7 +248,7 @@ export async function handleApi(request, env, user, background) {
           env.WORKER_TOKEN || env.SITE_SERVICE_TOKEN_SHA256
             ? "external-worker-endpoint"
             : "request-driven",
-        maintenance: await maintenanceStatus(db, env).then((s) => ({
+        maintenance: demoSession ? null : await maintenanceStatus(db, env).then((s) => ({
           stale: s.stale,
           lastWake: s.lastWake
             ? { status: s.lastWake.status, finished_at: s.lastWake.finished_at }
@@ -345,8 +348,9 @@ export async function handleApi(request, env, user, background) {
       const input = await jsonBody(rawBody);
       let options = {
         scenario: input.scenario,
-        forceSandbox: input.mode !== "live",
+        forceSandbox: Boolean(demoSession) || input.mode !== "live",
         workflowId: input.workflowId,
+        ...(demoSession ? { source: "public-demo" } : {}),
       };
       let payload = input.payload;
       if (parts[1] && parts[2] === "replay") {
@@ -389,6 +393,12 @@ export async function handleApi(request, env, user, background) {
           snapshotName: previous.workflow_name,
         };
       }
+      if (demoSession && (input.mode === "live" || options.snapshot?.mode === "live"))
+        throw new AppError("Live actions are disabled in the public sandbox.", 403);
+      if (demoSession) {
+        options.forceSandbox = true;
+        options.source = "public-demo";
+      }
       if (input.mode === "live" || options.snapshot?.mode === "live")
         assertRole(member.role, "admin");
       const execution = await enqueue(
@@ -422,22 +432,23 @@ export async function handleApi(request, env, user, background) {
             "SELECT COUNT(*) AS count FROM workflows WHERE workspace_id=?",
             workspace,
           )
-        ).count >= 20
+        ).count >= (demoSession ? 5 : 20)
       )
-        throw new AppError("Workspace limit: 20 workflows.", 409);
+        throw new AppError(`Workspace limit: ${demoSession ? 5 : 20} workflows.`, 409);
       const flowId = id();
       const config = { ...defaultConfig, graph: referenceGraph(defaultConfig) };
       const created = await one(
         db,
-        "INSERT INTO workflows(id,workspace_id,name,version,config,updated_at) SELECT ?,?,?,1,?,? WHERE (SELECT COUNT(*) FROM workflows WHERE workspace_id=?)<20 RETURNING id",
+        "INSERT INTO workflows(id,workspace_id,name,version,config,updated_at) SELECT ?,?,?,1,?,? WHERE (SELECT COUNT(*) FROM workflows WHERE workspace_id=?)<? RETURNING id",
         flowId,
         workspace,
         name,
         JSON.stringify(config),
         Date.now(),
         workspace,
+        demoSession ? 5 : 20,
       );
-      if (!created) throw new AppError("Workspace limit: 20 workflows.", 409);
+      if (!created) throw new AppError(`Workspace limit: ${demoSession ? 5 : 20} workflows.`, 409);
       await auditLog(db, workspace, actor, "workflow.created", {
         workflowId: flowId,
         name,
@@ -448,6 +459,8 @@ export async function handleApi(request, env, user, background) {
       assertRole(member.role, "admin");
       const input = await jsonBody(rawBody);
       const config = validateConfig(input.config);
+      if (demoSession && config.mode !== "sandbox")
+        throw new AppError("Only sandbox workflows can be published in the public demo.", 403);
       const flowId = input.id || workspace + ":lead";
       const existing = await one(
         db,

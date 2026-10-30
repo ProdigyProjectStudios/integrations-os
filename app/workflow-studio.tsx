@@ -1,5 +1,5 @@
 "use client";
-import { workspaceHeaders } from "./workspace-api";
+import { workspaceHeaders, apiUrl } from "./workspace-api";
 import {
   useCallback,
   useEffect,
@@ -214,7 +214,7 @@ const serialize = (nodes: FlowNode[], edges: Edge[]): Graph => ({
   })),
 });
 async function call(path: string, body?: unknown, method = "POST") {
-  const response = await fetch("/api/" + path, {
+  const response = await fetch(apiUrl(path), {
     method: body === undefined ? "GET" : method,
     headers: {
       "Content-Type": "application/json",
@@ -296,6 +296,7 @@ function StepNode({ data, selected }: NodeProps<FlowNode>) {
 }
 const nodeTypes = { step: StepNode };
 type Props = {
+  demo?: boolean;
   flows: Flow[];
   onPublished: () => Promise<void>;
   onInspect: (id: string) => void;
@@ -307,7 +308,7 @@ export default function WorkflowStudio(props: Props) {
     </ReactFlowProvider>
   );
 }
-function Builder({ flows, onPublished, onInspect }: Props) {
+function Builder({ flows, onPublished, onInspect, demo = false }: Props) {
   const [flowId, setFlowId] = useState(flows[0].id);
   const flow = flows.find((f) => f.id === flowId) || flows[0];
   const graph = flow.config.graph || (referenceGraph(flow.config) as Graph);
@@ -1226,7 +1227,7 @@ function Builder({ flows, onPublished, onInspect }: Props) {
                   }}
                 >
                   <option value="sandbox">Sandbox · test adapters</option>
-                  <option value="live">Live · connected accounts</option>
+                  {!demo && <option value="live">Live · connected accounts</option>}
                 </select>
               </label>
               <label>
