@@ -1,6 +1,6 @@
 "use client";
 
-import { Activity, ArrowDownRight, ArrowUpRight, Check, CircleDot, GitBranch, Github, LayoutDashboard, ShieldCheck, Sparkles, Workflow } from "lucide-react";
+import { Activity, ArrowDownRight, ArrowUpRight, Check, CircleDot, GitBranch, Code2, LayoutDashboard, ShieldCheck, Sparkles, Workflow } from "lucide-react";
 import { ShaderBackground } from "../../components/ui/calm-violet-silk-shader-hero-background";
 
 type Props = {
@@ -45,7 +45,7 @@ export default function DemoIntro({ engineStatus, onInspect, onCommandCenter }: 
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Github size={16} /> GitHub repository <ArrowUpRight size={14} />
+              <Code2 size={16} /> GitHub repository <ArrowUpRight size={14} />
             </a>
           </div>
           <button type="button" className="demo-intro-traces" onClick={onInspect}>
