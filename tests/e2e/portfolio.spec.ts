@@ -8,9 +8,14 @@ test('public portfolio displays recorded engine traces without administrative co
   await expect(page.locator('.portfolio-hero-actions > a')).toHaveCount(2);
   await expect(page.locator('.portfolio-hero-source > a')).toHaveCount(1);
 
-  await page.getByRole('link', { name: 'Capabilities', exact: true }).click();
-  await expect(page).toHaveURL(/#capabilities$/);
-  await page.getByRole('link', { name: 'Execution traces', exact: true }).click();
+  // The header links are intentionally hidden on narrow screens; exercise
+  // them when visible and use the public hero CTA on both breakpoints.
+  const capabilities = page.getByRole('link', { name: 'Capabilities', exact: true });
+  if (await capabilities.isVisible()) {
+    await capabilities.click();
+    await expect(page).toHaveURL(/#capabilities$/);
+  }
+  await page.getByRole('link', { name: /Explore execution traces/i }).click();
   await expect(page).toHaveURL(/#inspector$/);
 
   await expect(page.getByRole('heading', { name: /Every system.*perfect sync/i })).toBeVisible();
