@@ -514,6 +514,9 @@ export function ShaderBackground({ className }: { className?: string }) {
     }
     document.addEventListener("visibilitychange", onVisibilityChange)
 
+    // Narrow the guarded WebGL and canvas references for the animation callback.
+    const stableCanvas = canvas
+    const stableGL = gl
     function render(now: number) {
       raf = 0
       if (disposed || !visible || !inView) return
@@ -524,30 +527,30 @@ export function ShaderBackground({ className }: { className?: string }) {
       mouseY += (targetY - mouseY) * follow
       cursorPresence += (targetPresence - cursorPresence) * follow
       resizeCanvas()
-      const width = canvas.width
-      const height = canvas.height
-      gl.uniform4f(
+      const width = stableCanvas.width
+      const height = stableCanvas.height
+      stableGL.uniform4f(
         uni.scene,
         width,
         height,
         ((now - start) / 1000) * UNIFORMS.timeScale,
         UNIFORMS.colorCount,
       )
-      gl.uniform4f(
+      stableGL.uniform4f(
         uni.space,
         UNIFORMS.offsetX,
         UNIFORMS.offsetY,
         mouseX,
         mouseY,
       )
-      gl.uniform4f(
+      stableGL.uniform4f(
         uni.cursor,
         UNIFORMS.cursorEnabled ? cursorPresence : 0,
         UNIFORMS.cursorEffect,
         UNIFORMS.cursorStrength,
         UNIFORMS.cursorRadius,
       )
-      gl.drawArrays(gl.TRIANGLES, 0, 3)
+      stableGL.drawArrays(stableGL.TRIANGLES, 0, 3)
       const pointerSettling =
         Math.abs(targetX - mouseX) > 0.001 ||
         Math.abs(targetY - mouseY) > 0.001 ||
