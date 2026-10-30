@@ -1,75 +1,142 @@
+<p align="center">
+  <img src="docs/portfolio-hero.svg" alt="IntegrationOS — illustrative workflow orchestration and execution-tracing graphic" width="100%" />
+</p>
+
 # IntegrationOS
 
-**Your systems, in sync.** A working integration-operations core with a Command Center and an execution inspector built around persisted workflow traces.
+**Connect systems. Orchestrate work. Trace every execution.**
 
-This repository contains the **Phase 1 Core implementation**, including an executable drag-and-drop graph builder. See [the release checklist](docs/STATUS.md) for verified behavior and the external-account and production gates that still require deployment setup. Document Intelligence and PropertyOps are deliberately not scaffolded yet.
+IntegrationOS is a full-stack **integration and workflow-operations platform**: a visual, versioned workflow builder backed by real SQL-persisted execution, recovery, human approvals, integration adapters, and trace-level observability. It combines a polished React command center with the engineering controls needed to inspect and recover complex business processes.
 
-## Try the system
+**[Interactive Workflow Studio](https://integration-os-command.smart-wren-7193.chatgpt.site/demo)** · **[Portfolio overview & recorded traces](https://integration-os-command.smart-wren-7193.chatgpt.site/portfolio)** · [Architecture](docs/ARCHITECTURE.md) · [Verified scope](docs/STATUS.md) · [Public demo boundaries](docs/PUBLIC-DEMO.md)
 
-1. Open the application and sign in. A private workspace is provisioned for your identity.
-2. Select **Initialize reference events**. Twelve events enter the real durable queue; the worker creates all timestamps, spans, receipts, and audit records. Repeated initialization is idempotent.
-3. Watch the waterfall populate. Select any operation to inspect its input, output, attributes, and error.
-4. Open **Execution Inspector**, choose **Urban Collective**, and filter its attempts. The reference scenario exhausts three retries and becomes a dead letter.
-5. Select **Safe replay**. A linked execution runs without the injected fault. The original failure remains in history.
-6. In **Workflow Studio**, publish the reference graph or create a new workflow. Drag steps from the palette, connect output/input handles, and configure a selected step. Conditions expose separate true/false ports. The configuration drawer also offers keyboard-accessible connection controls.
-7. Add a transform, change its operation or value, connect it to an active route, and **Publish version**. Click **Test run**, then **Inspect trace**. The new node's actual output appears in its persisted span. Already-queued executions retain their original graph and layout.
-8. Insert a **Human approval** step. The run pauses durably; approve or reject it in the inspector. Approval resumes the same execution and trace from saved checkpoints.
+> **Portfolio reference implementation — Phase 1 Core.** The public Studio runs **real persisted workflows with clearly labelled sandbox adapters**. It does *not* send messages to third-party providers. Live Slack, HubSpot, Gmail and AI-provider acceptance still requires separate credentials and testing. This is engineering proof, not a claim that a customer CRM deployment has been certified.
 
-The builder supports 24 nodes and 48 connections, multiple workflows, undo/redo, node deletion, pan/zoom, minimap, auto-arrange, and validated JSON import/export. Supported nodes: event trigger, transform, condition, Slack delivery, HubSpot/Gmail reads, delay, human approval, and AI classification. Arbitrary code execution and arbitrary HTTP destinations are intentionally not supported.
+---
 
-Sandbox adapters never send an external message. All sandbox timing is measured around actual worker operations and explicit test-adapter latency. There are no fabricated historical timestamps, counters, or trace arrays in the UI.
+## The problem
 
-## Architecture
+Businesses depend on CRMs, email, internal tools, and APIs that don't naturally share state. When processes cross those systems, failures become difficult to diagnose: an event can be accepted but never delivered, a retry can repeat an external action, or a manual approval can be lost after a restart.
+
+**IntegrationOS brings the workflow and its evidence together.** An operator can design the graph, publish a version, execute it against a durable queue, inspect measured spans and outcomes, and decide whether to approve, retry or investigate an uncertain delivery.
+
+## Experience the product
+
+The public [interactive Studio](https://integration-os-command.smart-wren-7193.chatgpt.site/demo) uses isolated 24-hour visitor workspaces. No account credentials or provider integrations are needed.
+
+1. **Design:** Drag nodes onto the canvas, connect branches, configure transformations, conditions, delays and approvals.
+2. **Publish:** Validate and publish a graph version. Invalid cycles, unsafe fields and unsupported connections are rejected server-side.
+3. **Execute:** Trigger a sandbox run using the actual workflow engine and SQL queue.
+4. **Inspect:** Follow the persisted execution waterfall, node outputs, branch decisions, checkpoints and errors.
+5. **Intervene:** Resolve an approval, test a retry, or inspect an execution after reload.
+
+For a curated, read-only introduction with recorded engine traces, open the [portfolio walkthrough](https://integration-os-command.smart-wren-7193.chatgpt.site/portfolio).
+
+The graphic above is **an illustrative architecture motif, not an application screenshot**. The linked experiences are the actual deployed application.
+
+## Core product experiences
+
+| Area | What works |
+| --- | --- |
+| **Command Center** | Engine-derived operational metrics, execution activity, integration health and failure inspection. |
+| **Workflow Studio** | React Flow drag-and-drop canvas, configuration, branches, undo/redo, pan/zoom, minimap, validated JSON import/export and version publishing. |
+| **Execution Inspector** | Measured trace spans, parallel-step waterfall, redacted inputs/outputs, attempts, errors, receipts and linked replay history. |
+| **Execution engine** | Durable SQL queue, lease claims, parallel dependency execution, deterministic routing, checkpoints, backoff, retries and dead letters. |
+| **Human approvals** | Persisted waiting state, authorized approve/reject decisions and resume from the existing checkpoint. |
+| **Integrations** | OAuth/credential lifecycle, restricted provider adapters, opt-in synchronization, durable cursors and staged HubSpot contact updates. |
+| **Workspace operations** | Owner/member controls, roles, quotas, audit trails, verified encrypted backups and guarded retention. |
+| **Public portfolio sandbox** | Isolated visitor tenants with genuine engine execution; no live provider access or workspace administration. |
+
+**Graph boundaries:** At most 24 nodes and 48 connections per graph; conditions expose explicit true/false routes. The engine does not execute arbitrary user code or send requests to arbitrary user-provided URLs.
+
+## A real end-to-end execution
 
 ```mermaid
 flowchart LR
-  U[React Command Center] --> A[Authenticated API]
-  H[Signed webhook] --> A
-  A --> D[(SQL executions + queue)]
-  A --> W[Background Worker]
-  C[Optional external wake / cron] --> W
-  W -->|atomic lease| D
-  U --> G[Versioned graph definition]
-  G --> D
-  W --> V[Validate DAG and resolve dependencies]
-  V --> N[Run ready nodes in parallel]
-  N --> R[Conditions and selected branches]
-  R --> T[Durable node checkpoints]
-  T --> S[Sandbox or connected adapters]
-  N --> HRA[Human review pause and resume]
-  HRA --> T
-  S --> O[(Outbox receipt)]
-  W --> P[(Spans + audit)]
-  P --> A
-  A --> U
+  A[Signed event / studio trigger] --> B[Authenticated API]
+  B --> C[(D1 SQL queue + versioned graph)]
+  C --> D[Lease-based worker]
+  D --> E[Parallel steps + branches]
+  E --> F{Human approval?}
+  F -->|Approved / no approval| G[Allowlisted adapter]
+  F -->|Rejected| H[Recorded stop]
+  G --> I[(Outbox receipt)]
+  D --> J[(Node checkpoints + measured spans)]
+  I --> J
+  H --> J
+  J --> K[Command Center + Inspector]
 ```
 
-The core is a modular monolith: `app/` contains the React interface and development route adapter, `core/` contains the independently testable orchestration and adapter modules, `db/` defines the schema, and `drizzle/` contains generated migrations. Production JSON requests are handled directly in `worker/`, outside the framework's server-rendering transformations. Framework and hosting glue lives in `worker/` and `scripts/`.
+- **Persistence is real:** Executions, graph snapshots, step results, retries and trace spans are stored by the backend, not fabricated in the browser.
+- **Failures are explicit:** Bounded retries and dead-letter states distinguish confirmed failure from uncertain delivery, which requires manual review.
+- **Replay is auditable:** A replay links to its originating execution; confirmed external receipts are reused where applicable.
+- **Recovery is unattended:** An hourly managed task has been verified recovering an expired execution lease on the hosted service.
+- **Visibility is linked to action:** Execution IDs, persisted span IDs and correlation information connect orchestration, debugging and the audit history.
 
-**Stack decision:** React 19, TypeScript, stable Vinext 1.4, Cloudflare Workers, D1 SQL, and Drizzle. The managed host runs the execution engine alongside the interface. The original FastAPI/PostgreSQL/Redis/Celery preference would require a different host; the trade-off and migration path are recorded in [ADR 001](docs/ARCHITECTURE.md).
+See the deeper [architecture decisions](docs/ARCHITECTURE.md) and [operations runbook](docs/PRODUCTION-RUNBOOK.md).
 
-Workspace settings now includes membership administration, sync review, verified encrypted backups and guarded retention. Recovery uses an owner-restricted maintenance endpoint with durable heartbeat records. See the [production runbook](docs/PRODUCTION-RUNBOOK.md) and [exact owner setup requirements](docs/OWNER-SETUP.md) before enabling live providers.
+## Engineering and design
 
-## Local development
+| Layer | Implementation |
+| --- | --- |
+| **Frontend** | React 19, TypeScript, Tailwind CSS, shadcn-style components, React Flow, GSAP, Lenis and React Bits effects |
+| **Application/runtime** | Vinext 1.4 / Next-compatible application, Cloudflare Workers |
+| **Persistence** | Cloudflare D1 SQL, Drizzle schema and additive migrations |
+| **Workflow orchestration** | Leased SQL queue, immutable published graph snapshots, dependency scheduling, receipts, retry/replay and approvals |
+| **Observability** | Measured execution spans, OpenTelemetry SDK, durable OTLP export outbox and inspection UI |
+| **Reliability** | Recovery task, scoped rate limits, fenced OAuth refresh, AES-GCM token encryption, encrypted R2 logical backups |
+| **Quality** | Node test runner, TypeScript checks, Playwright desktop/mobile tests, GitHub Actions and Docker smoke-test configuration |
 
-Use **Node 24** and npm. On Windows ARM, run an x64 Node runtime under Windows emulation: the local Cloudflare runtime does not support native Windows ARM. Dependencies are locked.
+The architecture is deliberately a **modular monolith**. The UI and engine run on one managed Worker-backed deployment; it does **not** claim to run a FastAPI/Celery/PostgreSQL microservice infrastructure. The alternative architecture and trade-offs are recorded in [ADR 001](docs/ARCHITECTURE.md).
 
-```sh
+### Integration state — implemented vs. verified live
+
+| Adapter | Implemented capability | Live-provider acceptance |
+| --- | --- | --- |
+| **Slack** | Scoped OAuth/connection and outbound message action with durable delivery handling | **Pending** test workspace consent and provider receipt verification |
+| **HubSpot** | OAuth, paginated read/sync with persisted cursor, staged existing-contact edits and conflict review | **Pending** disposable portal and provider-side write/readback |
+| **Gmail** | Read-only OAuth and message mirror/sync; no send/write scopes | **Pending** test mailbox authorization and remote readback |
+| **AI classification** | Validated structured output path and explicit sandbox classification | **Pending** configured model, cost policy and real API test |
+| **External traces** | Durable OTLP export outbox and local HTTP collector test | **Pending** production collector endpoint and credentials |
+
+**No Salesforce integration, native CRM webhook-signature adapter, autonomous production CRM writeback or live AI-model quality is claimed.** HubSpot two-way sync is opt-in and requires a single-writer/conflict acceptance policy.
+
+## Security and reliability boundaries
+
+- Workspace isolation, authenticated owner endpoints and role checks; the public visitor API is a separate allowlisted sandbox surface.
+- Signed generic webhooks, origin checks, bounded event payloads, encrypted provider credentials and redacted traces.
+- Server-side graph validation, action allowlists, rate limits and execution quotas.
+- At-least-once execution with conservative uncertain-delivery handling — **not a blanket exactly-once guarantee** across SaaS providers.
+- Public sessions use isolated, expiring synthetic tenants and cannot enable live actions, inspect owner data or administer integrations.
+- Offsite disaster recovery, independent security review, live-provider acceptance and defined production SLOs remain **outside the verified scope**.
+
+[Security decisions](docs/SECURITY.md) · [Public demo isolation and limits](docs/PUBLIC-DEMO.md)
+
+## Verified technical evidence
+
+At the current Phase 1 release:
+
+- **48 backend tests** and **16 desktop/mobile browser checks** passed in the release validation.
+- **TypeScript checks**, **production build** and a dependency audit with **zero reported vulnerabilities at release time** passed.
+- **Two GitHub Actions CI runs passed** after repository publication, including the configured verification jobs.
+- Hosted recovery and encrypted R2 backup readback were verified. A local 100-execution/10-tenant bounded load check passed; this is **not** a production performance certification.
+
+[GitHub Actions results](https://github.com/ProdigyProjectStudios/integrations-os/actions) · [Implementation status and precise acceptance gates](docs/STATUS.md)
+
+## Run locally
+
+Use **Node.js 24** and npm. This repository is a Cloudflare Worker/D1 implementation; no separate PostgreSQL or Redis server is required for the validated local path.
+
+```bash
 npm ci
 npm run build
 npm run db:migrate:local
 npm run dev
 ```
 
-Open the printed loopback URL (normally `http://127.0.0.1:5173`). The starter's loopback-only development sign-in supplies a test identity. Production builds do not include that mock sign-in. Local and hosted SQL databases are separate.
+The local development sign-in works only on loopback; hosted authentication is enforced separately. Never reuse a production database for browser or test fixtures.
 
-Local schema changes: edit `db/schema.ts`, run `npm run db:generate`, inspect the generated SQL, build, then run `npm run db:migrate:local`. Never rewrite an applied migration. If an individual migration fails after partially applying, inspect the database before retrying; the helper intentionally does not suppress schema errors.
-
-Optional `docker compose up --build` runs the development environment with a persistent local SQL volume using Linux host networking so the mock-auth boundary remains loopback-only. Docker Desktop requires host networking support enabled separately. This container is **not a self-hosted production auth solution**. Docker is supplied but was not executable in the authoring environment. Use the native loopback workflow for the validated development path.
-
-## Checks
-
-```sh
+```bash
 npm test
 npm run typecheck
 npm run build
@@ -77,47 +144,39 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-Tests cover concurrent claims, duplicate events, idempotency conflicts, retries, dead letters, receipt reuse after lease expiry, uncertain delivery, tenant isolation, roles, origin checks, version conflicts, encryption, webhook authentication, adapters, and OTLP conversion. Graph tests additionally verify branches, parallel dependency timing, joins, checkpoints, independent action receipts, approval authorization, reject/resume semantics and graph validation. Browser tests exercise canvas editing, connections, publication, node outputs in the inspector, approval decisions, reload persistence, integration controls and mobile overflow. The built Worker uses its own migrated `.wrangler/e2e` database, separate from the development preview. Tests emulate the trusted gateway's identity headers only on loopback; they do not exercise real hosted sign-in. `.github/workflows/ci.yml` defines the Linux CI checks; GitHub-hosted execution remains unverified.
+Configure secrets through hosting environment settings or an ignored local `.dev.vars`; `.env.example` documents the variable names. **Never commit live tokens or API keys.** For OAuth scopes and exact callback URLs, use [OWNER-SETUP.md](docs/OWNER-SETUP.md).
 
-## Live integrations
-
-Configure secrets through the hosting environment UI; use an ignored `.dev.vars` for local development. Variable names are documented in `.env.example`. Never put tokens in the browser or the hosting manifest.
-
-For each provider, register an OAuth application and allow exactly:
+## Repository map
 
 ```text
-https://YOUR_ORIGIN/api/connections/slack/callback
-https://YOUR_ORIGIN/api/connections/hubspot/callback
-https://YOUR_ORIGIN/api/connections/gmail/callback
+app/                   Command Center, Workflow Studio, portfolio and demo UI
+components/            UI components and licensed React Bits integration
+core/                  Graph executor, adapters, security, sync and recovery
+db/                    SQL schema and data model
+drizzle/               Generated, additive database migrations
+worker/                Deployed API, isolation and background execution boundary
+tests/                 Engine, security and browser coverage
+docs/                  Architecture, security, operations and status runbooks
+.github/workflows/      CI and Docker verification
 ```
 
-Set the relevant client ID and client secret plus a cryptographically random `TOKEN_ENCRYPTION_KEY` of at least 32 characters. The Integration Hub then enables authorization. Tokens use AES-256-GCM with workspace/provider-bound associated data. OAuth state is random, hashed, user-bound, expiring, and consumed once. Refreshable tokens refresh before expiry.
+## Documentation
 
-After Slack authorization, set its real channel ID in Workflow Studio, choose **Live**, and publish. The event launcher then offers an explicit **Live Slack delivery** option. Each such run sends the configured notification. Sandbox remains the launcher default even when live delivery is configured.
+- [Architecture and engineering trade-offs](docs/ARCHITECTURE.md)
+- [Operations, ingestion, recovery and telemetry](docs/OPERATIONS.md)
+- [Production runbook](docs/PRODUCTION-RUNBOOK.md)
+- [Owner setup and live-provider acceptance](docs/OWNER-SETUP.md)
+- [Public demo threat model and isolation](docs/PUBLIC-DEMO.md)
+- [Third-party notices](docs/THIRD_PARTY.md)
+- [Phase 1 implementation status](docs/STATUS.md)
 
-For live AI classification, configure `OPENAI_API_KEY` and `OPENAI_MODEL` through secret settings. The Responses API uses a strict enum schema and validates the returned category again. Sandbox classification deterministically returns the first category and explicitly labels the result `sandbox-test-adapter`; it is not represented as a model inference. Credentials were unavailable for live AI verification.
+## Scope and next phases
 
-HubSpot and Gmail currently support authorization and a bounded first-page read with a persisted metadata summary. These are **not continuous or bidirectional sync engines**. Provider sandbox credentials were not supplied, so actual OAuth consent and live provider actions still require validation. No real third-party action was executed during development.
+**Phase 1 Core is implemented and demonstrable.** It should be presented as a workflow and integration infrastructure engineering reference, **not** as an already-certified customer-facing integration service. Document Intelligence and PropertyOps are **separate, unbuilt future phases** and are not represented as functionality in this repository.
 
-## Webhooks and recovery
+## Author and licence
 
-See [the operations guide](docs/OPERATIONS.md) for signed ingestion, authentication boundaries, wake endpoints, retry policy, OTLP export, backups, and rollout checks. The private Site's access boundary remains in front of every endpoint, including webhooks. An external CRM cannot reach a private Site merely by supplying the application HMAC; an authorized service-access path is also required. Do not make the Site public to work around this.
+**Aaron Archer · Digital Prodigy** — independent AI & full-stack engineer  
+[Portfolio](https://digitalprodigy.dev) · [GitHub profile](https://github.com/ProdigyProjectStudios)
 
-## Source and deployment
-
-The local repository and managed Sites Git remote contain the source. `.openai/hosting.json` retains the exact Site identity. The Sites source helper builds, commits, pushes, and packages a deployable archive; native publishing applies migrations and deploys that exact version privately. GitHub repository creation is not exposed by the available GitHub connector, so this release does not claim a GitHub URL.
-
-## Design
-
-Layered midnight surfaces, Manrope typography, icy-blue controls, restrained illumination, an orchestration diagram and meaningful status colors. **GSAP** provides scoped view transitions, **Lenis** handles page scrolling while leaving canvas and nested interaction areas native, and **React Bits SpotlightCard** adds subtle proximity illumination to metrics. React Flow provides the editable graph. Motion respects reduced-motion preferences. The inspector preserves attempts and measured overlap, supports JSON inspection and export, and places human decisions beside their evidence. The supplied attachment contained the written brief only; no reference screenshot was available for pixel comparison.
-
-React Bits source is vendored with its full MIT + Commons Clause license in `components/reactbits/LICENSE.md`. See [third-party notices](docs/THIRD_PARTY.md).
-
-## Provider references
-
-- [Slack chat.postMessage](https://api.slack.com/methods/chat.postMessage)
-- [HubSpot OAuth API migration](https://developers.hubspot.com/changelog/v1-oauth-api-deprecation)
-- [Gmail messages.list](https://developers.google.com/workspace/gmail/api/reference/rest/v1/users.messages/list)
-- [Cloudflare background waitUntil](https://developers.cloudflare.com/changelog/post/2025-08-08-add-waituntil-cloudflare-workers/)
-
-Read [security and reliability decisions](docs/SECURITY.md) before connecting sensitive production accounts.
+Copyright © 2026 Aaron Archer. The source is available for portfolio evaluation and technical review only. No reuse or commercial licence is granted. See [LICENSE](LICENSE). Third-party components retain their own licences.
