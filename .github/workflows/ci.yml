@@ -1,0 +1,49 @@
+name: Core quality gates
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm audit --audit-level=moderate
+      - run: npm test
+      - run: npm run build
+      - run: npm run db:migrate:local
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: browser-test-evidence
+          path: |
+            playwright-report/
+            test-results/
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t integration-os:ci .
+      - run: docker run --detach --network host --name integration-os-ci integration-os:ci
+      - name: Wait for the local database-backed API
+        run: |
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5173/api/health; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - if: always()
+        run: docker logs integration-os-ci
+      - if: always()
+        run: docker rm --force integration-os-ci

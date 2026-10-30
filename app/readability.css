@@ -1,0 +1,183 @@
+/* Data density must not come at the cost of readable text. */
+.chart-tabs {
+  margin: 8px 12px 0;
+  gap: 2px;
+}
+.chart-tabs button {
+  font-size: 9px !important;
+  padding: 5px 7px;
+}
+.topbar,
+.search input,
+.workspace-switch,
+.sidebar nav button,
+.sidebar-bottom > button {
+  font-size: 11px;
+}
+.eyebrow,
+.page-heading .eyebrow {
+  font-size: 9px;
+}
+.panel-title .eyebrow {
+  font-size: 8px;
+}
+.metric-label {
+  font-size: 11px;
+}
+.metric p {
+  font-size: 9px;
+}
+.metric-main strong {
+  font-size: 31px;
+}
+.system-card small {
+  font-size: 9px;
+}
+.connection-health {
+  font-size: 9px;
+}
+.sandbox-banner,
+.sandbox-banner span,
+.sandbox-banner strong,
+.sandbox-banner button {
+  font-size: 10px;
+}
+.section-heading h2,
+.panel-title h3 {
+  font-size: 13px;
+}
+.text-btn {
+  font-size: 11px;
+}
+.trace-meta,
+.trace-meta code {
+  font-size: 10px;
+}
+.legend > span,
+.trace-axis,
+.axis-ticks b {
+  font-size: 9px;
+}
+.trace-axis > span:first-child .muted {
+  font-size: 8px;
+}
+.span-label {
+  font-size: 10px;
+}
+.span-label small,
+.span-timing {
+  font-size: 9px;
+}
+.waterfall.compact .span-row {
+  height: 38px;
+}
+.waterfall-footer,
+.waterfall-footer > span,
+.redaction {
+  font-size: 9px;
+}
+.badge {
+  font-size: 9px;
+}
+.mode-label {
+  font-size: 8px;
+}
+.latency-number span,
+.chart-labels,
+.chart-note {
+  font-size: 9px;
+}
+.table-link {
+  font-size: 11px;
+}
+.table-link small,
+.table-link code {
+  font-size: 9px;
+}
+th {
+  font-size: 8px;
+}
+td {
+  font-size: 10px;
+}
+.activity-list strong {
+  font-size: 10px;
+}
+.activity-list small {
+  font-size: 8px;
+}
+.feed-footer {
+  font-size: 10px;
+}
+.execution-list-item strong {
+  font-size: 11px;
+}
+.execution-list-item small {
+  font-size: 9px;
+}
+.span-detail strong,
+.tabs button {
+  font-size: 11px;
+}
+.primary,
+.secondary {
+  font-size: 11px;
+}
+.micro {
+  font-size: 10px;
+}
+.flow-node small {
+  font-size: 9px;
+}
+@media (max-width: 1200px) {
+  .metric-main strong {
+    font-size: 26px;
+  }
+  .metric-label {
+    font-size: 10px;
+  }
+  .metric p {
+    font-size: 8px;
+  }
+  .sandbox-banner span {
+    font-size: 9px;
+  }
+  .connection-health {
+    font-size: 8px;
+  }
+  .table-link small,
+  .table-link code {
+    font-size: 8px;
+  }
+}
+@media (max-width: 760px) {
+  .sandbox-banner strong,
+  .sandbox-banner button {
+    font-size: 8px;
+  }
+  .page-heading .eyebrow {
+    font-size: 7px;
+  }
+  .metric-main strong {
+    font-size: 28px;
+  }
+  .system-card .connection-health {
+    font-size: 0;
+  }
+  .text-btn {
+    font-size: 9px;
+  }
+  .trace-meta,
+  .trace-meta code {
+    font-size: 9px;
+  }
+  .waterfall-footer {
+    font-size: 8px;
+  }
+  .span-label {
+    font-size: 9px;
+  }
+  .span-label small {
+    font-size: 8px;
+  }
+}

@@ -1,0 +1,281 @@
+{
+  "generatedAt": "2026-10-30T04:05:21.067Z",
+  "runs": [
+    {
+      "id": "88808e53-d81c-4061-bb07-dc6b30a0e65e",
+      "trace_id": "384251b0df0942349f95a579e6f439a2",
+      "workflow_name": "Enquiry → qualified lead",
+      "status": "success",
+      "mode": "sandbox",
+      "attempts": 1,
+      "started_at": 1793333117773,
+      "finished_at": 1793333118872,
+      "spans": [
+        {
+          "id": "3aba183a3c904470",
+          "parent_id": null,
+          "name": "workflow.execute",
+          "service": "orchestrator",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333117774,
+          "ended_at": 1793333118872
+        },
+        {
+          "id": "30676846653a408b",
+          "parent_id": "3aba183a3c904470",
+          "name": "event.validate",
+          "service": "gateway",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333117779,
+          "ended_at": 1793333117888
+        },
+        {
+          "id": "b387b4ff6d14426b",
+          "parent_id": "3aba183a3c904470",
+          "name": "contact.normalize",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333117891,
+          "ended_at": 1793333118201
+        },
+        {
+          "id": "8ba3ef1669274bb8",
+          "parent_id": "3aba183a3c904470",
+          "name": "delivery.check",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333117892,
+          "ended_at": 1793333118029
+        },
+        {
+          "id": "4ae9efb1d7bc41b3",
+          "parent_id": "3aba183a3c904470",
+          "name": "condition.evaluate",
+          "service": "rules",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118202,
+          "ended_at": 1793333118295
+        },
+        {
+          "id": "a880a26ae44c4c01",
+          "parent_id": "3aba183a3c904470",
+          "name": "message.render",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118296,
+          "ended_at": 1793333118421
+        },
+        {
+          "id": "203a57ef7ebd4707",
+          "parent_id": "3aba183a3c904470",
+          "name": "slack.deliver",
+          "service": "sandbox",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118423,
+          "ended_at": 1793333118871
+        },
+        {
+          "id": "d3c3696d262f4c71",
+          "parent_id": "3aba183a3c904470",
+          "name": "audit.commit",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118872,
+          "ended_at": 1793333118872
+        }
+      ]
+    },
+    {
+      "id": "afa25bc7-a848-47eb-8a21-2f0b84b29752",
+      "trace_id": "b5aaa3594d1343a484f1270cbc067db6",
+      "workflow_name": "Enquiry → qualified lead",
+      "status": "success",
+      "mode": "sandbox",
+      "attempts": 1,
+      "started_at": 1793333118887,
+      "finished_at": 1793333119978,
+      "spans": [
+        {
+          "id": "6bf274b2965f4fac",
+          "parent_id": "c983107efbfa40fa",
+          "name": "event.validate",
+          "service": "gateway",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118888,
+          "ended_at": 1793333118996
+        },
+        {
+          "id": "c983107efbfa40fa",
+          "parent_id": null,
+          "name": "workflow.execute",
+          "service": "orchestrator",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118888,
+          "ended_at": 1793333119978
+        },
+        {
+          "id": "011c7b25d22743b3",
+          "parent_id": "c983107efbfa40fa",
+          "name": "contact.normalize",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118996,
+          "ended_at": 1793333119304
+        },
+        {
+          "id": "c1375f56b02c43e4",
+          "parent_id": "c983107efbfa40fa",
+          "name": "delivery.check",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333118998,
+          "ended_at": 1793333119135
+        },
+        {
+          "id": "53a12d30685046bc",
+          "parent_id": "c983107efbfa40fa",
+          "name": "condition.evaluate",
+          "service": "rules",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119305,
+          "ended_at": 1793333119397
+        },
+        {
+          "id": "3fef5fa142c94f36",
+          "parent_id": "c983107efbfa40fa",
+          "name": "message.render",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119398,
+          "ended_at": 1793333119522
+        },
+        {
+          "id": "3df08fc96cec497c",
+          "parent_id": "c983107efbfa40fa",
+          "name": "slack.deliver",
+          "service": "sandbox",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119522,
+          "ended_at": 1793333119975
+        },
+        {
+          "id": "2f9c6c554f6b4139",
+          "parent_id": "c983107efbfa40fa",
+          "name": "audit.commit",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119976,
+          "ended_at": 1793333119977
+        }
+      ]
+    },
+    {
+      "id": "4af80889-e2f0-448d-99a3-d7a9b771b954",
+      "trace_id": "caf72e318e24491391813180056ccaa7",
+      "workflow_name": "Enquiry → qualified lead",
+      "status": "success",
+      "mode": "sandbox",
+      "attempts": 1,
+      "started_at": 1793333119983,
+      "finished_at": 1793333121065,
+      "spans": [
+        {
+          "id": "08eea30a4e9d47e0",
+          "parent_id": null,
+          "name": "workflow.execute",
+          "service": "orchestrator",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119984,
+          "ended_at": 1793333121065
+        },
+        {
+          "id": "5738654aeff34a8b",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "event.validate",
+          "service": "gateway",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333119984,
+          "ended_at": 1793333120081
+        },
+        {
+          "id": "1ff9e9e8e4b748a1",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "contact.normalize",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333120082,
+          "ended_at": 1793333120392
+        },
+        {
+          "id": "5003423cfe2a4276",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "delivery.check",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333120082,
+          "ended_at": 1793333120221
+        },
+        {
+          "id": "8f40631a28164a01",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "condition.evaluate",
+          "service": "rules",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333120393,
+          "ended_at": 1793333120485
+        },
+        {
+          "id": "d8e27ba9be0241a2",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "message.render",
+          "service": "transform",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333120486,
+          "ended_at": 1793333120611
+        },
+        {
+          "id": "9722a36050ea4c67",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "slack.deliver",
+          "service": "sandbox",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333120612,
+          "ended_at": 1793333121063
+        },
+        {
+          "id": "2733065ab92e4983",
+          "parent_id": "08eea30a4e9d47e0",
+          "name": "audit.commit",
+          "service": "storage",
+          "attempt": 1,
+          "status": "success",
+          "started_at": 1793333121064,
+          "ended_at": 1793333121065
+        }
+      ]
+    }
+  ]
+}

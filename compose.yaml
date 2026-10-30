@@ -1,0 +1,13 @@
+# Local development only. Production authentication is supplied by Sites dispatch.
+services:
+  integration-os:
+    build: .
+    # Linux host networking preserves the loopback-only mock-auth boundary.
+    # Docker Desktop requires host networking support enabled explicitly.
+    network_mode: host
+    volumes:
+      - local-db:/app/.wrangler/state
+    environment:
+      NODE_ENV: development
+volumes:
+  local-db:
