@@ -8,7 +8,7 @@
 
 IntegrationOS is a full-stack **integration and workflow-operations platform**: a visual, versioned workflow builder backed by real SQL-persisted execution, recovery, human approvals, integration adapters, and trace-level observability. It combines a polished React command center with the engineering controls needed to inspect and recover complex business processes.
 
-**[Interactive Workflow Studio](https://integration-os-command.smart-wren-7193.chatgpt.site/demo)** · **[Portfolio overview & recorded traces](https://integration-os-command.smart-wren-7193.chatgpt.site/portfolio)** · [Architecture](docs/ARCHITECTURE.md) · [Verified scope](docs/STATUS.md) · [Public demo boundaries](docs/PUBLIC-DEMO.md)
+**[Interactive Workflow Studio](https://integrationos.digitalprodigy.dev/demo)** · **[Portfolio overview & recorded traces](https://integrationos.digitalprodigy.dev)** · [Architecture](docs/ARCHITECTURE.md) · [Verified scope](docs/STATUS.md) · [Public demo boundaries](docs/PUBLIC-DEMO.md)
 
 > **Portfolio reference implementation — Phase 1 Core.** The public Studio runs **real persisted workflows with clearly labelled sandbox adapters**. It does *not* send messages to third-party providers. Live Slack, HubSpot, Gmail and AI-provider acceptance still requires separate credentials and testing. This is engineering proof, not a claim that a customer CRM deployment has been certified.
 
@@ -22,7 +22,7 @@ Businesses depend on CRMs, email, internal tools, and APIs that don't naturally 
 
 ## Experience the product
 
-The public [interactive Studio](https://integration-os-command.smart-wren-7193.chatgpt.site/demo) uses isolated 24-hour visitor workspaces. No account credentials or provider integrations are needed.
+The public [interactive Studio](https://integrationos.digitalprodigy.dev/demo) uses isolated 24-hour visitor workspaces. No account credentials or provider integrations are needed.
 
 1. **Design:** Drag nodes onto the canvas, connect branches, configure transformations, conditions, delays and approvals.
 2. **Publish:** Validate and publish a graph version. Invalid cycles, unsafe fields and unsupported connections are rejected server-side.
@@ -30,7 +30,22 @@ The public [interactive Studio](https://integration-os-command.smart-wren-7193.c
 4. **Inspect:** Follow the persisted execution waterfall, node outputs, branch decisions, checkpoints and errors.
 5. **Intervene:** Resolve an approval, test a retry, or inspect an execution after reload.
 
-For a curated, read-only introduction with recorded engine traces, open the [portfolio walkthrough](https://integration-os-command.smart-wren-7193.chatgpt.site/portfolio).
+For a curated, read-only introduction with recorded engine traces, open the [portfolio walkthrough](https://integrationos.digitalprodigy.dev).
+
+### Product screenshots
+
+**Execution Inspector — desktop**
+
+![IntegrationOS Execution Inspector showing a real sandbox workflow trace](docs/assets/integrationos-execution-inspector-desktop.png)
+
+<details>
+<summary>View the responsive mobile Execution Inspector</summary>
+
+<p align="center">
+  <img src="docs/assets/integrationos-execution-inspector-mobile.webp" alt="IntegrationOS Execution Inspector on mobile" width="390" />
+</p>
+
+</details>
 
 The graphic above is **an illustrative architecture motif, not an application screenshot**. The linked experiences are the actual deployed application.
 
