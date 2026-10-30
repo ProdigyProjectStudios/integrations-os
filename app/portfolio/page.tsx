@@ -1,14 +1,28 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState, type MouseEvent } from "react";
 import {
   Activity, ArrowDownRight, ArrowRight, ArrowUpRight,
-  CheckCircle2, CircleDot, GitBranch, Layers, ShieldCheck
+  CheckCircle2, CircleDot, Code2, GitBranch, Layers, ShieldCheck
 } from "lucide-react";
 import { ShaderBackground } from "../../components/ui/calm-violet-silk-shader-hero-background";
 import BrandMark from "../../components/brand-mark";
 import recorded from "./recorded-runs.json";
 import "./portfolio.css";
+
+function scrollToPortfolioSection(event: MouseEvent<HTMLAnchorElement>) {
+  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  const anchor = event.currentTarget.getAttribute("href");
+  if (anchor !== "#capabilities" && anchor !== "#inspector") return;
+  const section = document.querySelector<HTMLElement>(anchor);
+  if (!section) return;
+  event.preventDefault();
+  window.history.pushState(null, "", anchor);
+  section.scrollIntoView({
+    block: "start",
+    behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+  });
+}
 
 const featured = recorded.runs[0];
 const featuredStart = Math.min(featured.started_at, ...featured.spans.map(s => s.started_at));
@@ -56,31 +70,11 @@ function HeroTrace() {
 
 export default function Portfolio() {
   const [selected, setSelected] = useState(0);
-  const heroRef = useRef<HTMLElement>(null);
   const run = recorded.runs[selected];
   const start = Math.min(run.started_at, ...run.spans.map(s => s.started_at));
   const end = Math.max(run.finished_at || start, ...run.spans.map(s => s.ended_at || s.started_at));
   const duration = Math.max(end - start, 1);
 
-  useEffect(() => {
-    if (!heroRef.current || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    let disposed = false;
-    let context: { revert: () => void } | undefined;
-    void import("gsap").then(({ gsap }) => {
-      if (disposed || !heroRef.current) return;
-      context = gsap.context(() => {
-        gsap.from(".portfolio-animate", {
-          opacity: 0, y: 28, duration: 0.95, ease: "power3.out",
-          stagger: 0.12, clearProps: "all"
-        });
-        gsap.from(".portfolio-hero-panel", {
-          opacity: 0, y: 32, duration: 1.2, delay: 0.25, ease: "power3.out",
-          clearProps: "all"
-        });
-      }, heroRef);
-    }).catch(() => { /* Content remains visible if animation cannot load. */ });
-    return () => { disposed = true; context?.revert(); };
-  }, []);
 
   return (
     <main className="portfolio-shell">
@@ -91,14 +85,14 @@ export default function Portfolio() {
             <span>Integration<span>OS</span></span>
           </a>
           <nav className="portfolio-header-nav" aria-label="Portfolio navigation">
-            <a className="portfolio-header-text-link" href="#capabilities">Capabilities</a>
-            <a className="portfolio-header-text-link" href="#inspector">Execution traces</a>
+            <a className="portfolio-header-text-link" href="#capabilities" onClick={scrollToPortfolioSection}>Capabilities</a>
+            <a className="portfolio-header-text-link" href="#inspector" onClick={scrollToPortfolioSection}>Execution traces</a>
             <a className="portfolio-header-cta" href="/demo">Open Studio <ArrowUpRight size={15} /></a>
           </nav>
         </div>
       </header>
 
-      <section className="portfolio-hero" ref={heroRef} aria-labelledby="portfolio-hero-heading">
+      <section className="portfolio-hero" aria-labelledby="portfolio-hero-heading">
         <div className="portfolio-silk" aria-hidden="true"><ShaderBackground className="portfolio-silk-canvas" /></div>
         <div className="portfolio-hero-scrim" aria-hidden="true" />
         <div className="portfolio-container portfolio-hero-grid">
@@ -110,7 +104,8 @@ export default function Portfolio() {
             </p>
             <div className="portfolio-hero-actions portfolio-animate">
               <a className="portfolio-primary-cta" href="/demo">Launch Workflow Studio <ArrowUpRight size={19} /></a>
-              <a className="portfolio-secondary-cta" href="#inspector">Explore execution traces <ArrowDownRight size={18} /></a>
+              <a className="portfolio-secondary-cta" href="#inspector" onClick={scrollToPortfolioSection}>Explore execution traces <ArrowDownRight size={18} /></a>
+              <a className="portfolio-github-cta" href="https://github.com/ProdigyProjectStudios/integrations-os" target="_blank" rel="noopener noreferrer"><Code2 size={17} /> GitHub repository <ArrowUpRight size={16} /></a>
             </div>
             <div className="portfolio-hero-trust portfolio-animate">
               <ShieldCheck size={16} />

@@ -8,6 +8,13 @@ test('visitor builds a graph, runs the sandbox engine and inspects its persisted
   await page.getByRole('link', { name: 'Launch Workflow Studio' }).click();
   await expect(page.getByLabel('Select workflow')).toBeVisible();
   await expect(page.locator('.app-shell.is-demo')).toBeVisible();
+  if (testInfo.project.name === 'desktop') {
+    await page.getByRole('button', { name: 'Collapse sidebar' }).click();
+    await expect(page.locator('.app-shell.is-demo')).toHaveClass(/sidebar-collapsed/);
+    await expect(page.getByRole('navigation', { name: 'Demo navigation' }).getByRole('button', { name: 'Workflow Studio' })).toBeVisible();
+    await page.getByRole('button', { name: 'Expand sidebar' }).click();
+    await expect(page.locator('.app-shell.is-demo')).not.toHaveClass(/sidebar-collapsed/);
+  }
   await expect(page.getByRole('heading', { name: /Build the flow.*See the proof/i })).toBeVisible();
   await expect(page.locator('.demo-intro-shader')).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Explore the canvas' })).toHaveAttribute('href', '#workflow-studio');

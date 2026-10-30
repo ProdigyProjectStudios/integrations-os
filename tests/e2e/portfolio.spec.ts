@@ -2,6 +2,14 @@ import { test, expect } from '@playwright/test';
 
 test('public portfolio displays recorded engine traces without administrative controls', async ({ page }) => {
   await page.goto('/portfolio');
+  await expect(page.getByRole('link', { name: 'GitHub repository' })).toHaveAttribute(
+    'href', 'https://github.com/ProdigyProjectStudios/integrations-os'
+  );
+  await page.getByRole('link', { name: 'Capabilities', exact: true }).click();
+  await expect(page).toHaveURL(/#capabilities$/);
+  await page.getByRole('link', { name: 'Execution traces', exact: true }).click();
+  await expect(page).toHaveURL(/#inspector$/);
+
   await expect(page.getByRole('heading', { name: /Every system.*perfect sync/i })).toBeVisible();
   await expect(page.locator('.portfolio-silk-canvas')).toHaveCount(1);
   await expect(page.getByRole('link', { name: /Launch Workflow Studio/i })).toBeVisible();

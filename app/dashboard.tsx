@@ -709,6 +709,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
   const [modal, setModal] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [sidebar, setSidebar] = useState(false);
+  const [demoSidebarCollapsed, setDemoSidebarCollapsed] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
   const [company, setCompany] = useState("Meridian Estates");
   const [value, setValue] = useState(4800);
@@ -912,7 +913,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
     audit: "A durable record of every operational change.",
   };
   return (
-    <div className={`app-shell view-${view}${demo ? " is-demo" : ""}`} ref={motionRef}>
+    <div className={`app-shell view-${view}${demo ? " is-demo" : ""}${demo && demoSidebarCollapsed ? " sidebar-collapsed" : ""}`} ref={motionRef}>
       <aside
         inert={Boolean(modal)}
         className={`sidebar ${sidebar ? "open" : ""}`}
@@ -921,6 +922,19 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
           <span className="brand-mark"><BrandMark size={45} className="integration-brand-symbol" /></span>
           Integration<span>OS</span>
         </a>
+        {demo && (
+          <button
+            type="button"
+            className="demo-sidebar-collapse"
+            aria-label={demoSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            title={demoSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+            aria-expanded={!demoSidebarCollapsed}
+            aria-controls="demo-navigation"
+            onClick={() => setDemoSidebarCollapsed((value) => !value)}
+          >
+            {demoSidebarCollapsed ? <ArrowRight size={15} /> : <ArrowLeft size={15} />}
+          </button>
+        )}
         {demo && <div className="demo-sidebar-tag"><i /> THE WORKFLOW LAB / 01</div>}
         <button
           className="workspace-switch"
@@ -934,12 +948,14 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
           <ChevronDown size={13} />
         </button>
         <div className="nav-label">{demo ? "EXPLORE THE PLATFORM" : "WORKSPACE"}</div>
-        <nav aria-label={demo ? "Demo navigation" : "Workspace navigation"}>
+        <nav id={demo ? "demo-navigation" : undefined} aria-label={demo ? "Demo navigation" : "Workspace navigation"}>
           {availableViews.map((v, idx) => (
             <button
               key={v.id}
               data-demo-view={demo ? v.id : undefined}
               className={view === v.id ? "active" : ""}
+              aria-label={demo ? v.name : undefined}
+              title={demo ? v.name : undefined}
               onClick={() => go(v.id)}
             >
               <v.icon size={17} />
