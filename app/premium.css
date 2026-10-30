@@ -1548,3 +1548,45 @@ body {
 .operations-notice {
   color: #81dbc2;
 }
+
+
+/* App-wide entrance: one subtle, immediate, composited transition.
+   Crucially, no late JS "from opacity: 0" reset after hydration. */
+@keyframes integration-first-paint {
+  from { opacity: .95; transform: translate3d(0, 6px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes integration-trace-arrive {
+  from { opacity: .92; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .app-shell .page-heading,
+  .app-shell [data-enter],
+  .app-shell .metrics-grid > .metric,
+  .app-shell .system-card,
+  .app-shell .integration-card {
+    animation: integration-first-paint .45s cubic-bezier(.22, 1, .36, 1) both;
+  }
+  /* Waterfall bars are fed by live snapshots: never repeatedly collapse/rebuild them. */
+  .app-shell .waterfall .span-bar {
+    animation: integration-trace-arrive .35s ease-out both;
+    transform-origin: left center;
+  }
+  /* The Flow canvas is interactive; do not translate it during pointer setup. */
+  .app-shell .workflow-workbench[data-enter] {
+    animation: integration-trace-arrive .3s ease-out both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .page-heading,
+  .app-shell [data-enter],
+  .app-shell .metrics-grid > .metric,
+  .app-shell .system-card,
+  .app-shell .integration-card,
+  .app-shell .waterfall .span-bar {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

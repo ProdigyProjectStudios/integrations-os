@@ -282,3 +282,33 @@
   .portfolio-shell .portfolio-silk-canvas { display:none !important; }
   .portfolio-github-cta { transition: none !important; }
 }
+
+
+/* Keep the GitHub action below the trust line, leaving room for a full-size execution monitor. */
+.portfolio-hero-source {
+  display:flex;
+  align-items:center;
+  margin-top:11px;
+}
+.portfolio-hero-source .portfolio-github-cta {
+  width:auto;
+  min-height:34px;
+  padding:6px 12px;
+  gap:8px;
+  font-size:11px;
+  background:rgba(15,12,33,.44);
+  border-color:rgba(190,166,255,.34);
+  box-shadow:none;
+}
+.portfolio-hero-source .portfolio-github-cta:hover {
+  background:rgba(117,86,196,.19);
+  border-color:rgba(218,195,255,.68);
+}
+@media (max-width:640px) {
+  .portfolio-hero-source .portfolio-github-cta {
+    width:auto;
+    justify-content:flex-start;
+    min-height:34px;
+    padding:7px 11px;
+  }
+}

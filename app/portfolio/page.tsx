@@ -105,11 +105,13 @@ export default function Portfolio() {
             <div className="portfolio-hero-actions portfolio-animate">
               <a className="portfolio-primary-cta" href="/demo">Launch Workflow Studio <ArrowUpRight size={19} /></a>
               <a className="portfolio-secondary-cta" href="#inspector" onClick={scrollToPortfolioSection}>Explore execution traces <ArrowDownRight size={18} /></a>
-              <a className="portfolio-github-cta" href="https://github.com/ProdigyProjectStudios/integrations-os" target="_blank" rel="noopener noreferrer"><Code2 size={17} /> GitHub repository <ArrowUpRight size={16} /></a>
             </div>
             <div className="portfolio-hero-trust portfolio-animate">
               <ShieldCheck size={16} />
               <span>Real engine execution. Isolated sandbox. No sign-in required.</span>
+            </div>
+            <div className="portfolio-hero-source portfolio-animate">
+              <a className="portfolio-github-cta" href="https://github.com/ProdigyProjectStudios/integrations-os" target="_blank" rel="noopener noreferrer"><Code2 size={16} /> View source on GitHub <ArrowUpRight size={15} /></a>
             </div>
           </div>
           <HeroTrace />
