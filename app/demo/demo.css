@@ -654,7 +654,7 @@
   .app-shell.is-demo .sidebar nav button.active::before { left:-17px; }
   .app-shell.is-demo .main-shell { margin-left:0; }
   .app-shell.is-demo .main-shell > main { padding:17px 12px 26px; }
-  .app-shell.is-demo .topbar { padding:0 15px;height:58px; }
+  .app-shell.is-demo .topbar { padding:0 15px;height:58px;position:relative; }
   .app-shell.is-demo .topbar .environment { font-size:8px; }
   .app-shell.is-demo .topbar .top-actions { gap:7px; }
   .app-shell.is-demo .demo-top-link { display:none; }
@@ -689,7 +689,8 @@
   .app-shell.is-demo .node-settings {
     width:min(285px,88%);
     max-height:505px;
-    top:0;bottom:0;right:0;
+    top:72px;bottom:0;right:0;
+    height:calc(100% - 72px);
   }
   .app-shell.is-demo .canvas-toolbar { top:11px;left:10px;right:10px;font-size:8px; }
   .app-shell.is-demo .canvas-toolbar button { padding:6px; }
