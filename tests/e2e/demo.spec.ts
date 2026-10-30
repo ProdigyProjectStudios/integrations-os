@@ -15,6 +15,9 @@ test('visitor builds a graph, runs the sandbox engine and inspects its persisted
   await expect(page.getByRole('link', { name: 'GitHub repository' })).toHaveAttribute('href', 'https://github.com/ProdigyProjectStudios/integrations-os');
   await page.getByRole('button', { name: 'Command Center' }).click();
   await expect(page.locator('.page-heading h1')).toContainText('Command Center');
+  if (testInfo.project.name === 'mobile') {
+    await page.getByRole('button', { name: 'Toggle navigation' }).click();
+  }
   await page.locator('.sidebar nav button[data-demo-view="studio"]').click();
   await expect(page.getByLabel('Select workflow')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Workspace settings', exact: true })).toHaveCount(0);
