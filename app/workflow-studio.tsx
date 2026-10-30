@@ -571,7 +571,7 @@ function Builder({ flows, onPublished, onInspect, demo = false }: Props) {
     data: { ...n.data, status: runNodes[n.id] },
   }));
   return (
-    <section className="workflow-workbench" data-enter>
+    <section id={demo ? "workflow-studio" : undefined} className="workflow-workbench" data-enter>
       <div className="studio-toolbar">
         <div className="studio-identity">
           <span className="studio-symbol">

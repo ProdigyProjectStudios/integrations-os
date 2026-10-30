@@ -49,6 +49,7 @@ import {
 } from "lucide-react";
 
 import WorkflowStudio from "./workflow-studio";
+import DemoIntro from "./demo/demo-intro";
 import SpotlightCard from "../components/reactbits/SpotlightCard";
 import { useInterfaceMotion } from "./motion";
 import WorkspaceOperations from "./workspace-operations";
@@ -910,7 +911,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
     audit: "A durable record of every operational change.",
   };
   return (
-    <div className={`app-shell view-${view}`} ref={motionRef}>
+    <div className={`app-shell view-${view}${demo ? " is-demo" : ""}`} ref={motionRef}>
       <aside
         inert={Boolean(modal)}
         className={`sidebar ${sidebar ? "open" : ""}`}
@@ -921,6 +922,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
           </span>
           Integration<span>OS</span>
         </a>
+        {demo && <div className="demo-sidebar-tag"><i /> INTERACTIVE ENGINE SANDBOX</div>}
         <button
           className="workspace-switch"
           disabled={demo}
@@ -973,7 +975,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
               {data?.workspace.user.slice(0, 1).toUpperCase() || "A"}
             </span>
             <div>
-              {data?.workspace.user.split("@")[0] || "Workspace owner"}
+              {demo ? "Visitor workspace" : data?.workspace.user.split("@")[0] || "Workspace owner"}
               <small>{data?.workspace.role || (demo ? "Sandbox visitor" : "Admin")}</small>
             </div>
             {!demo && <a
@@ -996,11 +998,12 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
             >
               <Menu size={20} />
             </button>
-            <span className="breadcrumb">Workspace</span>
+            <span className="breadcrumb">{demo ? "Public sandbox" : "Workspace"}</span>
             <ChevronRight size={12} />
             <span>{title}</span>
           </div>
           <div className="top-actions">
+            {demo && <a className="demo-top-link" href="/portfolio">Portfolio <ArrowUpRight size={14} /></a>}
             <label className="search">
               <Search size={14} />
               <input
@@ -1032,6 +1035,12 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
           </div>
         </header>
         <main>
+          {demo && view === "studio" ? (
+            <DemoIntro
+              engineStatus={error ? "offline" : data ? "online" : "connecting"}
+              onInspect={() => go("executions")}
+            />
+          ) : (
           <div className="page-heading">
             <div>
               <div className="eyebrow">
@@ -1064,6 +1073,7 @@ export default function Dashboard({ demo = false }: { demo?: boolean }) {
               </button>
             </div>
           </div>
+          )}
           {error && (
             <div role="alert" className="error-banner">
               <Activity size={16} />
