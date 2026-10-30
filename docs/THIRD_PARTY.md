@@ -7,3 +7,5 @@
 - **OpenAI Responses structured outputs**: [official API documentation](https://developers.openai.com/api/docs/guides/structured-outputs). Live inference requires separately configured credentials and a supported model. No key or model is bundled.
 
 Other installed dependencies retain their package licenses. The React Flow attribution remains visible in the canvas.
+
+- **Calm Violet Silk Shader Hero Background**: original WebGL/React component by **DHxWhy** on [21st.dev](https://21st.dev/@dhxwhy/components/calm-violet-silk-shader-hero-background), distributed under the MIT License. The author-supplied component source was adapted to honour reduced-motion preferences and to bound GPU resolution. See the bundled [license and attribution](../components/ui/calm-violet-silk-shader-hero-background.LICENSE.md). The original marketplace demo imagery is not redistributed.
