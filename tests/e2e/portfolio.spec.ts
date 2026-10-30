@@ -7,6 +7,11 @@ test('public portfolio displays recorded engine traces without administrative co
   // The primary hero retains exactly two actions; the source link is beneath the trust line.
   await expect(page.locator('.portfolio-hero-actions > a')).toHaveCount(2);
   await expect(page.locator('.portfolio-hero-source > a')).toHaveCount(1);
+  // The monitor should regain its intended large desktop footprint.
+  if ((page.viewportSize()?.width ?? 0) >= 1181) {
+    const monitor = await page.locator('.portfolio-hero-panel').boundingBox();
+    expect(monitor?.width ?? 0).toBeGreaterThan(640);
+  }
 
   // The header links are intentionally hidden on narrow screens; exercise
   // them when visible and use the public hero CTA on both breakpoints.

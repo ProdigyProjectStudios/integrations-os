@@ -312,3 +312,27 @@
     padding:7px 11px;
   }
 }
+
+/* Keep the monitor dominant on wider displays. The previous 1320px
+   container and 1.05/.95 grid left the waterfall noticeably undersized. */
+@media (min-width:1181px) {
+  .portfolio-hero > .portfolio-container {
+    width:min(calc(100% - 64px),1460px);
+  }
+  .portfolio-hero-grid {
+    grid-template-columns:minmax(0,.97fr) minmax(0,1.03fr);
+    column-gap:clamp(28px,2.8vw,42px);
+  }
+  .portfolio-hero-panel {
+    width:100%;
+    min-height:560px;
+  }
+  .portfolio-panel-rows {
+    padding-block:7px 11px;
+  }
+  .portfolio-panel-row { min-height:59px; }
+  .portfolio-panel-intro strong { font-size:21px; }
+  .portfolio-panel-operation { font-size:11px; }
+  .portfolio-panel-track { height:22px; }
+  .portfolio-panel-bar { height:14px;top:4px; }
+}

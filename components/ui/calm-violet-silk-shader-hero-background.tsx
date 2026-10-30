@@ -411,6 +411,7 @@ export function ShaderBackground({ className }: { className?: string }) {
     let bounds = canvas.getBoundingClientRect()
     let raf = 0
     let lastNow: number | null = null
+    let lastPaint = 0
     let visible = document.visibilityState === "visible"
     let inView = true
     let disposed = false
@@ -418,12 +419,12 @@ export function ShaderBackground({ className }: { className?: string }) {
     const timeAnimated = Math.abs(UNIFORMS.timeScale) > 0.0001
 
     const resizeCanvas = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5)
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25)
       const rawWidth = Math.max(1, Math.round(bounds.width * dpr))
       const rawHeight = Math.max(1, Math.round(bounds.height * dpr))
       const pixelScale = Math.min(
         1,
-        Math.sqrt(1_250_000 / Math.max(1, rawWidth * rawHeight)),
+        Math.sqrt(850_000 / Math.max(1, rawWidth * rawHeight)),
       )
       const width = Math.max(1, Math.round(rawWidth * pixelScale))
       const height = Math.max(1, Math.round(rawHeight * pixelScale))
@@ -520,6 +521,13 @@ export function ShaderBackground({ className }: { className?: string }) {
     function render(now: number) {
       raf = 0
       if (disposed || !visible || !inView) return
+      // Organic silk drift is slow; cap expensive full-screen WebGL paints
+      // to ~30fps so canvas work cannot starve workflow drag interactions.
+      if (lastPaint && now - lastPaint < 33) {
+        requestRender()
+        return
+      }
+      lastPaint = now
       const dt = lastNow === null ? 0 : Math.min((now - lastNow) / 1000, 0.1)
       lastNow = now
       const follow = 1 - Math.exp(-12 * dt)

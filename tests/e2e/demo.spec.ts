@@ -43,7 +43,7 @@ test('visitor builds a graph, runs the sandbox engine and inspects its persisted
   const target = await node.locator('.react-flow__handle.target').boundingBox();
   await page.mouse.move(source!.x + source!.width / 2, source!.y + source!.height / 2);
   await page.mouse.down();
-  await page.mouse.move(target!.x + target!.width / 2, target!.y + target!.height / 2, { steps: 20 });
+  await page.mouse.move(target!.x + target!.width / 2, target!.y + target!.height / 2, { steps: 7 });
   await page.mouse.up();
   await expect(page.locator('.react-flow__edge')).toHaveCount(5);
   await page.getByTitle('Auto arrange', { exact: true }).click();
